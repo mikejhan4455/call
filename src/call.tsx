@@ -1,22 +1,39 @@
-import { showHUD, LaunchProps } from "@raycast/api";
-import { exec } from "child_process";
-
+import { LaunchProps, getSelectedText, open, showHUD } from "@raycast/api";
 
 interface Arguments {
   number: string;
 }
 
-export default async function main(
+// Thanks for @pernielsentikaer 's contribution.
+export default async function Command(
   props: LaunchProps<{
     arguments: Arguments;
   }>
 ) {
-  let { number } = props.arguments;
+  const { fallbackText } = props;
+  const { number } = props.arguments;
 
-  // Remove all non-numeric characters
-  number = number.replace("/-/g", "");
+  let dialNumber = fallbackText || number;
+  if (dialNumber === "") {
+    try {
+      const selectedText = await getSelectedText();
+      if (selectedText !== "") {
+        dialNumber = selectedText;
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
-  exec("open tel://" + number);
+  dialNumber = dialNumber.replace(/\s/g, "");
 
-  await showHUD("Calling " + number);
+  try {
+    await open(`tel://${dialNumber.trim()}`);
+    await showHUD(`Opening facetime calling ${dialNumber}...`);
+  } catch (error) {
+    console.error(error);
+    if (error instanceof Error) {
+      await showHUD(error.message);
+    }
+  }
 }
