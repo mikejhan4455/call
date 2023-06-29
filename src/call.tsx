@@ -4,7 +4,8 @@ interface Arguments {
   number: string;
 }
 
-// Thanks for @pernielsentikaer 's contribution.
+// Modified code based on pernielsentikaer 's suggestion
+// Thanks to @pernielsentikaer for the improvement
 export default async function Command(
   props: LaunchProps<{
     arguments: Arguments;
